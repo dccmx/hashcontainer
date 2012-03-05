@@ -99,17 +99,17 @@ func (h HashMap) IsEmpty() bool {
 // to a value such that (key==null ? k==null :
 // key.equals(k)), then this method returns v; otherwise
 // it returns nil.  (There can be at most one such mapping.)
-func (h HashMap) Get(key Hashable) (bool, interface{}) {
+func (h HashMap) Get(key Hashable) (interface{}, bool) {
   if key == nil {
     return h.getForNullKey()
   }
   hash := hash(key.HashCode())
   for e := h.table[indexFor(hash, len(h.table))]; e != nil; e = e.next {
     if e.hashCode == hash && (e.key == key || key.Equals(e.key)) {
-      return true, e.value
+      return e.value, true
     }
   }
-  return false, nil
+  return nil, false
 }
 
 // Offloaded version of get() to look up nil keys.  Null keys map
@@ -117,13 +117,13 @@ func (h HashMap) Get(key Hashable) (bool, interface{}) {
 // for the sake of performance in the two most commonly used
 // operations (get and put), but incorporated with conditionals in
 // otherst.
-func (h HashMap) getForNullKey() (bool, interface{}) {
+func (h HashMap) getForNullKey() (interface{}, bool) {
   for e := h.table[0]; e != nil; e = e.next {
     if e.key == nil {
-      return true, e.value
+      return e.value, true
     }
   }
-  return false, nil
+  return nil, false
 }
 
 // Returns true if this map contains a mapping for the
@@ -153,7 +153,7 @@ func (h HashMap) getEntry(key Hashable) *entry {
 // value is replaced.
 // return a bool indicate if there already has a mapping for the key
 // and the previous value associated with key, or nil if there was no mapping for key.
-func (h HashMap) Put(key Hashable, value interface{}) (bool, interface{}) {
+func (h HashMap) Put(key Hashable, value interface{}) (interface{}, bool) {
   if key == nil {
     return h.putForNullKey(value)
   }
@@ -163,25 +163,25 @@ func (h HashMap) Put(key Hashable, value interface{}) (bool, interface{}) {
     if e.hashCode == hashCode && (e.key == key || key.Equals(e.key)) {
       oldValue := e.value
       e.value = value
-      return true, oldValue
+      return oldValue, true
     }
   }
 
   h.addentry(hashCode, key, value, i)
-  return false, nil
+  return nil, false
 }
 
 // Offloaded version of put for nil keys
-func (h HashMap) putForNullKey(value interface{}) (bool, interface{}) {
+func (h HashMap) putForNullKey(value interface{}) (interface{}, bool) {
   for e := h.table[0]; e != nil; e = e.next {
     if e.key == nil {
       oldValue := e.value
       e.value = value
-      return true, oldValue
+      return oldValue, true
     }
   }
   h.addentry(0, nil, value, 0)
-  return false, nil
+  return nil, false
 }
 
 // Adds a new entry with the specified key, value and hash code to
@@ -244,19 +244,19 @@ func (h HashMap) transfer(newTable []*entry) {
 //
 // return if there was a mapping for key and 
 // the previous value associated with key, or
-func (h HashMap) Remove(key Hashable) (bool, interface{}) {
-  found, e := h.removeEntryForKey(key)
+func (h HashMap) Remove(key Hashable) (interface{}, bool) {
+  e, found := h.removeEntryForKey(key)
   if found {
-    return true, e.value
+    return e.value, true
   }
-  return false, nil
+  return nil, false
 }
 
 // Removes and returns the entry associated with the specified key
 // in the HashMap.
 //
 // Returns if there was a mapping for key and the associated entry
-func (h HashMap) removeEntryForKey(key Hashable) (bool, *entry) {
+func (h HashMap) removeEntryForKey(key Hashable) (*entry, bool) {
   hashCode :=  0
   if key != nil {
     hashCode = hash(key.HashCode())
@@ -274,13 +274,13 @@ func (h HashMap) removeEntryForKey(key Hashable) (bool, *entry) {
       } else {
         prev.next = next
       }
-      return true, e
+      return e, true
     }
     prev = e
     e = next
   }
 
-  return false, nil
+  return nil, false
 }
 
 // Removes all of the mappings from this map.

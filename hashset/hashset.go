@@ -5,7 +5,7 @@
 // Hashable, it is ported from jdk
 package hashset
 
-import "github.com/dccmx/hashcontainer/hashmap"
+import "../hashmap"
 
 type Hashable hashmap.Hashable
 
@@ -39,7 +39,7 @@ func (s HashSet) Contains(e Hashable) bool {
 // If this set already contains the element, the call leaves the set
 // unchanged and returns false.
 func (s HashSet) Add(e Hashable) bool {
-  already, _ := s.hashmap.Put(e, true)
+  _, already := s.hashmap.Put(e, true)
   return !already
 }
 
@@ -49,7 +49,7 @@ func (s HashSet) Add(e Hashable) bool {
 // changed as a result of the call).
 // This set will not contain the element once the call returns.
 func (s HashSet) Remove(e Hashable) bool {
-  already, _ := s.hashmap.Remove(e)
+  _, already := s.hashmap.Remove(e)
   return already
 }
 

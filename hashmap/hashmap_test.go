@@ -34,12 +34,12 @@ func TestPutGet0(t *testing.T) {
   h := New()
   k := Key{1, 2}
   h.Put(k, 1)
-  if _, v := h.Get(k); v != 1 {
+  if v, _ := h.Get(k); v != 1 {
     t.Errorf("put 1 get %d", v)
   }
 
   k2 := &Key{1, 2}
-  if _, v := h.Get(k2); v != 1 {
+  if v, _ := h.Get(k2); v != 1 {
     t.Errorf("put 1 get %d", v)
   }
 }
@@ -50,7 +50,7 @@ func TestRemove(t *testing.T) {
   h.Put(k, 1)
   k2 := &Key{1, 2}
   h.Remove(k2)
-  if _, v := h.Get(k); v != nil {
+  if v, _ := h.Get(k); v != nil {
     t.Errorf("remove failed")
   }
 }
